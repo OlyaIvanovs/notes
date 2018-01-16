@@ -21,5 +21,6 @@ export default new Router({
     { path: '/memories/shared', name: 'SharedMemories', component: SharedMemories },
     { path: '/memories/:id', name: 'Memory', component: Memory },
     { path: '/memories', name: 'Memories', component: Memories }
-  ]
+  ],
+  mode: 'history'
 })

@@ -13,8 +13,8 @@
           <v-icon left>{{ item.icon }}</v-icon> 
           {{ item.title }}
         </v-btn>
-        <v-btn flat dark>
-          <v-icon left>exit_to_app</v-icon> 
+        <v-btn flat dark @click="onLogOut">
+          <v-icon left>exit_to_app</v-icon>
           Log out
         </v-btn>
       </v-toolbar-items>
@@ -32,20 +32,31 @@
       }
     },
     computed: {
+      user () {
+        return this.$store.getters.user
+      },
       menuItems () {
-        let menuItems = [
-          {icon: 'face', title: 'Sign up', link: '/signup'},
-          {icon: 'lock_open', title: 'Sign in', link: '/signin'},
-          {icon: 'watch_later', title: 'All memories', link: '/memories'},
-          {icon: 'note', title: 'Make note', link: '/memories/new'},
-          {icon: 'person', title: 'Profile', link: '/profile'},
-          {icon: 'sync', title: 'Shared notes', link: '/memories/shared'}
-        ]
+        let menuItems
+        if (this.user) {
+          menuItems = [
+            {icon: 'watch_later', title: 'All memories', link: '/memories'},
+            {icon: 'note', title: 'Make note', link: '/memories/new'},
+            {icon: 'sync', title: 'Shared notes', link: '/memories/shared'},
+            {icon: 'person', title: 'Profile', link: '/profile'}
+          ]
+        } else {
+          menuItems = [
+            {icon: 'face', title: 'Sign up', link: '/signup'},
+            {icon: 'lock_open', title: 'Sign in', link: '/signin'},
+          ]
+        }         
         return menuItems
       },
     },
     methods: {
-
+      onLogOut () {
+        this.$store.dispatch('logUserOut')
+      }
     }
   }
 </script>
