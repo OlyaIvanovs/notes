@@ -12,6 +12,9 @@ export const store = new Vuex.Store({
     mutations: {
         setUser (state, payload) {
             state.user = payload
+        },
+        createNote (state, payload) {
+            console.log('createNote')
         }
     },
     getters: {
@@ -21,7 +24,9 @@ export const store = new Vuex.Store({
     },
     actions: {
         autoSignIn ({commit}, payload) {
-            commit('setUser', payload)
+            commit('setUser', {
+                id: payload.uid
+            })
         },
         signUserUp ({commit}, payload) {
             firebase.auth()
@@ -55,6 +60,17 @@ export const store = new Vuex.Store({
             }).catch(error => {
                 console.log(error)
               });
-        } 
+        },
+        createNote ({commit, getters}, payload) {
+            let user = getters.user
+            firebase.database().ref('/users/' + user.id).child('/notes/')
+            .push(payload)
+            .then(data => {
+                commit('createNote', payload)
+            })
+            .catch((error) => {
+                console.log(error)
+            }) 
+        }
     }
 })

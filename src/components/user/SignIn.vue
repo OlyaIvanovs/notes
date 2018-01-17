@@ -5,7 +5,7 @@
                 <v-card>
                     <v-card-text>
                         <v-container>
-                            <v-form @submit.prevent="onSignIn" lazy-validation id='form'>
+                            <v-form @submit.prevent="onSignIn" lazy-validation>
                                 <v-layout row>
                                     <v-flex xs12>
                                         <v-text-field
