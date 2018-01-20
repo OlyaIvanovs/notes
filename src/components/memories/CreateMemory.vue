@@ -140,6 +140,7 @@ export default {
                 images: this.images
             }
             this.$store.dispatch('createNote', note)
+            this.$router.push({name: 'Memories'})
         },
         onPickFile () {
             this.$refs.fileInput.click()
