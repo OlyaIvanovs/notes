@@ -6,12 +6,16 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
     state: {
-        user: null
+        user: null,
+        loadedMemories: []
     },
     
     mutations: {
         setUser (state, payload) {
             state.user = payload
+        },
+        setLoadedMemories (state, payload) {
+            state.loadedMemories = payload
         },
         createNote (state, payload) {
             console.log('createNote')
@@ -21,13 +25,20 @@ export const store = new Vuex.Store({
     getters: {
         user (state) {
             return state.user
+        },
+        loadedMemories (state) {
+            return state.loadedMemories.sort((a, b) => {
+                return new Date(a.date) - new Date(b.date)
+            })
+            // .slice(0, 10)
         } 
     },
     actions: {
-        autoSignIn ({commit}, payload) {
+        autoSignIn ({commit, dispatch}, payload) {
             commit('setUser', {
                 id: payload.uid
             })
+            dispatch('loadMemories')
         },
         signUserUp ({commit}, payload) {
             firebase.auth()
@@ -61,6 +72,24 @@ export const store = new Vuex.Store({
             }).catch(error => {
                 console.log(error)
               });
+        },
+        loadMemories ({commit, getters}) {
+            let user = getters.user
+            firebase.database().ref('/users/' + user.id).child('/notes/').once('value')
+            .then((data) => {
+                const memories = []
+                const obj = data.val()
+                for (let key in obj) {
+                    memories.push({
+                        id: key,
+                        title: obj[key].title,
+                        note: obj[key].note,
+                        date: obj[key].date,
+                        images: obj[key].images
+                    })
+                }
+                commit('setLoadedMemories', memories)
+            } )
         },
         createNote ({commit, getters}, payload) {
             let user = getters.user

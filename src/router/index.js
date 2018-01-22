@@ -13,14 +13,13 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    { path: '/', name: 'Home', component: Home },
+    { path: '/', name: 'Memories', component: Memories  },
     { path: '/signup', name: 'SignUp', component: SignUp },
     { path: '/signin', name: 'SignIn', component: SignIn },
     { path: '/profile', name: 'Profile', component: Profile },
     { path: '/memories/new', name: 'CreateMemory', component: CreateMemory },
     { path: '/memories/shared', name: 'SharedMemories', component: SharedMemories },
-    { path: '/memories/:id', name: 'Memory', component: Memory },
-    { path: '/memories', name: 'Memories', component: Memories }
+    { path: '/memories/:id', name: 'Memory', component: Memory }
   ],
   mode: 'history'
 })

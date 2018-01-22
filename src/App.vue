@@ -39,9 +39,8 @@
         let menuItems
         if (this.user) {
           menuItems = [
-            {icon: 'watch_later', title: 'All memories', link: '/memories'},
-            {icon: 'note', title: 'Make note', link: '/memories/new'},
-            {icon: 'sync', title: 'Shared notes', link: '/memories/shared'},
+            {icon: 'note', title: 'Write memory', link: '/memories/new'},
+            {icon: 'sync', title: 'Shared', link: '/memories/shared'},
             {icon: 'person', title: 'Profile', link: '/profile'}
           ]
         } else {

@@ -5,6 +5,7 @@ import * as firebase from 'firebase'
 import App from './App'
 import router from './router'
 import { store } from './store'
+import dateFilter from './filters/date'
 
 Vue.use(Vuetify, { theme: {
   primary: '#ff1744',
@@ -15,6 +16,8 @@ Vue.use(Vuetify, { theme: {
   success: '#4CAF50',
   warning: '#FFC107'
 }})
+
+Vue.filter('date', dateFilter)
 
 
 Vue.config.productionTip = false

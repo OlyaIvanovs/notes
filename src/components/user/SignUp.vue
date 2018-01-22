@@ -64,6 +64,8 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex'
+    
     export default {
         data () {
             return {
@@ -88,9 +90,7 @@
                 !this.comparePasswords &&
                 this.emailRules[1](this.email) === true
             },
-            user () {
-                return this.$store.getters.user
-            },
+            ...mapGetters(['user']),
         },
         watch: {
             user (value) {
