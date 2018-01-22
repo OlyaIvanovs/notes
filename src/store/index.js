@@ -7,10 +7,14 @@ Vue.use(Vuex)
 export const store = new Vuex.Store({
     state: {
         user: null,
-        loadedMemories: []
+        loadedMemories: [],
+        loading: false
     },
     
     mutations: {
+        setLoading (state, payload) {
+            state.loading = payload
+        },
         setUser (state, payload) {
             state.user = payload
         },
@@ -31,7 +35,17 @@ export const store = new Vuex.Store({
                 return new Date(a.date) - new Date(b.date)
             })
             // .slice(0, 10)
-        } 
+        },
+        loadedMemory (state, memoryId) {    
+            return (memoryId) => {
+                return state.loadedMemories.find((memory) => {
+                    return memory.id == memoryId
+                })
+            }
+        }, 
+        loading (state) {
+            return state.loading
+        }
     },
     actions: {
         autoSignIn ({commit, dispatch}, payload) {
@@ -74,6 +88,7 @@ export const store = new Vuex.Store({
               });
         },
         loadMemories ({commit, getters}) {
+            commit('setLoading', true)
             let user = getters.user
             firebase.database().ref('/users/' + user.id).child('/notes/').once('value')
             .then((data) => {
@@ -88,8 +103,12 @@ export const store = new Vuex.Store({
                         images: obj[key].images
                     })
                 }
+                commit('setLoading', false)
                 commit('setLoadedMemories', memories)
-            } )
+            }).catch((error) => {
+                console.log(error)
+                commit('setLoading', false)
+            })
         },
         createNote ({commit, getters}, payload) {
             let user = getters.user

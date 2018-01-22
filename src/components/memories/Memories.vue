@@ -15,20 +15,23 @@
                 </v-layout>
                 <v-layout row>
                     <v-flex xs12>
-                        <v-card>
-                            <v-list two-line>
-                            <template v-for="(item, index) in filteredMemories">
-                                <v-list-tile :key="item.title">
-                                <v-list-tile-content>
-                                    <v-list-tile-title class="primary--text">{{ item.title }}</v-list-tile-title>
-                                    <v-list-tile-sub-title class="grey--text text--darken-4">{{ item.note }}</v-list-tile-sub-title>
-                                    <v-list-tile-sub-title>{{ item.date | date}}</v-list-tile-sub-title>
-                                </v-list-tile-content>
-                                </v-list-tile>
-                                <v-divider v-if="index + 1 < loadedMemories.length"></v-divider>
-                            </template>
-                            </v-list>
-                        </v-card>
+                        <template v-for="(item, index) in filteredMemories">
+                        <router-link style="display: block; text-decoration: none;"  
+                        :to="{name: 'Memory', params: {id: item.id}}">
+                            <v-card>
+                                <v-list two-line>
+                                    <v-list-tile :key="item.title">
+                                    <v-list-tile-content>
+                                        <v-list-tile-title class="primary--text">{{ item.title }}</v-list-tile-title>
+                                        <v-list-tile-sub-title class="grey--text text--darken-4">{{ item.note }}</v-list-tile-sub-title>
+                                        <v-list-tile-sub-title>{{ item.date | date}}</v-list-tile-sub-title>
+                                    </v-list-tile-content>
+                                    </v-list-tile>
+                                    <v-divider v-if="index + 1 < loadedMemories.length"></v-divider>
+                                </v-list>
+                            </v-card>
+                        </router-link>
+                        </template>
                     </v-flex>
                 </v-layout>
             </v-flex>

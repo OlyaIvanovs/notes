@@ -19,7 +19,7 @@ export default new Router({
     { path: '/profile', name: 'Profile', component: Profile },
     { path: '/memories/new', name: 'CreateMemory', component: CreateMemory },
     { path: '/memories/shared', name: 'SharedMemories', component: SharedMemories },
-    { path: '/memories/:id', name: 'Memory', component: Memory }
+    { path: '/memories/:id', name: 'Memory', component: Memory,  props: true }
   ],
   mode: 'history'
 })
