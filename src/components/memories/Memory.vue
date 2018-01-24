@@ -23,16 +23,16 @@
                             <v-spacer></v-spacer>
                             <v-btn icon><v-icon>share</v-icon></v-btn>
                             <v-btn icon><v-icon>edit</v-icon></v-btn>
-                            <v-btn icon><v-icon>delete</v-icon></v-btn>
+                            <app-delete-dialog :memoryId="memory.id"></app-delete-dialog>
                         </v-card-actions>
                     </v-card>
                 </v-flex>
                 <v-flex xs6>
-                    <v-carousel>
+                    <v-carousel :cycle="false">
                         <v-carousel-item
                         v-for="(item,i) in memory.images"
                         v-bind:key="i"
-                        v-bind:src="item"
+                        v-bind:src="item.url"
                         transition="fade"
                         reverseTransition="fade"
                         ></v-carousel-item>
@@ -58,6 +58,9 @@ export default {
         loading () {
             return this.$store.getters.loading
         }
+    },
+    methods: {
+
     }
 }
 </script>
