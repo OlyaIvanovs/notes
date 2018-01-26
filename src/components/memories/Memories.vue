@@ -1,6 +1,16 @@
 <template>
     <v-container>
-        <v-layout row justify-space-between>
+        <v-layout row wrap align-center v-if="loading">
+            <v-flex xs12 class="text-xs-center">
+                <v-progress-circular 
+                    indeterminate 
+                    :width="6"
+                    :size="70"
+                    color="primary">
+                </v-progress-circular>
+            </v-flex>
+        </v-layout>
+        <v-layout row justify-space-between v-else>
             <v-flex xs12 sm6>
                 <v-layout row v-if="info">
                     <v-flex xs12 sm8>
@@ -71,7 +81,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['loadedMemories', 'info']),
+        ...mapGetters(['loadedMemories', 'info', 'loading']),
         filteredMemories () {
             let memories = this.loadedMemories
             if (this.search) {

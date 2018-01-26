@@ -9,9 +9,9 @@ export const store = new Vuex.Store({
         user: null,
         loadedMemories: [],
         loading: false,
-        info: null
+        info: null,
+        loading: false
     },
-    
     mutations: {
         setLoading (state, payload) {
             state.loading = payload
@@ -23,8 +23,7 @@ export const store = new Vuex.Store({
             state.loadedMemories = payload
         },
         createNote (state, payload) {
-            console.log('createNote')
-            console.log(payload)
+            state.loadedMemories.push(payload)
         },
         deleteMemory (state, payload) {
             state.loadedMemories
@@ -35,6 +34,9 @@ export const store = new Vuex.Store({
         },
         clearInfo (state, payload) {
             state.info = null
+        },
+        setLoading (state, payload) {
+            state.loading = payload
         }
     },
     getters: {
@@ -43,6 +45,9 @@ export const store = new Vuex.Store({
         },
         info (state) {
             return state.info
+        },
+        loading (state) {
+            return state.loading
         },
         loadedMemories (state) {
             return state.loadedMemories.sort((a, b) => {
@@ -157,6 +162,7 @@ export const store = new Vuex.Store({
             })
         },
         createNote ({commit, getters}, payload) {
+            commit('setLoading', true)
             let user = getters.user
             let key
             let images
@@ -190,6 +196,7 @@ export const store = new Vuex.Store({
                     .child(key).update({
                         images: images
                     }).then(() => {
+                        commit('setLoading', false)
                         commit('createNote', {
                             title: payload.title, 
                             note: payload.note,
