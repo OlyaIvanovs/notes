@@ -8,7 +8,8 @@ export const store = new Vuex.Store({
     state: {
         user: null,
         loadedMemories: [],
-        loading: false
+        loading: false,
+        info: null
     },
     
     mutations: {
@@ -28,11 +29,20 @@ export const store = new Vuex.Store({
         deleteMemory (state, payload) {
             state.loadedMemories
             .splice(state.loadedMemories.findIndex(memory => memory.id === payload), 1)
+        },
+        setInfo (state, payload) {
+            state.info = payload
+        },
+        clearInfo (state, payload) {
+            state.info = null
         }
     },
     getters: {
         user (state) {
             return state.user
+        },
+        info (state) {
+            return state.info
         },
         loadedMemories (state) {
             return state.loadedMemories.sort((a, b) => {
@@ -52,6 +62,9 @@ export const store = new Vuex.Store({
         }
     },
     actions: {
+        clearInfo ({commit}) {
+            commit('clearInfo')
+        },
         autoSignIn ({commit, dispatch}, payload) {
             commit('setUser', {
                 id: payload.uid
@@ -136,6 +149,7 @@ export const store = new Vuex.Store({
             })
             .then(() => {
                 commit('deleteMemory', payload)
+                commit('setInfo', "Your memory was deleted")
             })  
             .catch((error) => {
                 console.log(error)

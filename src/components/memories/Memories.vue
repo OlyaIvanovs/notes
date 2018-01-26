@@ -2,6 +2,11 @@
     <v-container>
         <v-layout row justify-space-between>
             <v-flex xs12 sm6>
+                <v-layout row v-if="info">
+                    <v-flex xs12 sm8>
+                        <app-alert @dismissed="onDismiss" :text="info"></app-alert>
+                    </v-flex>
+                </v-layout>
                 <v-layout row>
                     <v-flex xs12>
                         <v-text-field
@@ -66,7 +71,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['loadedMemories']),
+        ...mapGetters(['loadedMemories', 'info']),
         filteredMemories () {
             let memories = this.loadedMemories
             if (this.search) {
@@ -87,6 +92,9 @@ export default {
     methods: {
         clearDateFilter () {
             this.picker = ''
+        },
+        onDismiss () {
+            this.$store.dispatch('clearInfo')
         }
     }
 }
