@@ -14,7 +14,7 @@
             <v-flex xs12 sm6>
                 <v-layout row v-if="info">
                     <v-flex xs12 sm8>
-                        <app-alert @dismissed="onDismiss" :text="info"></app-alert>
+                        <app-alert @dismissed="onDismiss" :text="info.msg" :color="info.clr"></app-alert>
                     </v-flex>
                 </v-layout>
                 <v-layout row>

@@ -1,6 +1,11 @@
 <template>
   <div>
-    <v-alert color="warning" @input="onClose" dismissible icon="warning" :value="true">
+    <v-alert 
+        :color="color" 
+        :icon="icon" 
+        @input="onClose" 
+        dismissible 
+        :value="true">
         {{ text }}
     </v-alert>
   </div>
@@ -8,9 +13,10 @@
 
 <script>
     export default {
-        props: ['text'],
+        props: ['text', 'color', 'icon'],
         data () {
-            return {}
+            return {
+            }
         },
         methods: {
             onClose () {

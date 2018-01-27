@@ -14,7 +14,10 @@
                 <v-flex xs5>
                     <v-card>
                         <v-card-title>
-                            <h2 class="primary--text">{{ memory.title }}</h2>
+                            <div>
+                                <h2 class="primary--text">{{ memory.title }}</h2>
+                                <span class="grey--text">{{ memory.date | date }}</span><br>
+                            </div>
                         </v-card-title>
                         <v-card-text>
                             {{ memory.note }}
@@ -22,7 +25,7 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn icon><v-icon>share</v-icon></v-btn>
-                            <v-btn icon><v-icon>edit</v-icon></v-btn>
+                            <app-edit-dialog :memoryId="memory.id"></app-edit-dialog>
                             <app-delete-dialog :memoryId="memory.id"></app-delete-dialog>
                         </v-card-actions>
                     </v-card>

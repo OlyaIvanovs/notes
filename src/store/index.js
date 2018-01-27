@@ -37,6 +37,13 @@ export const store = new Vuex.Store({
         },
         setLoading (state, payload) {
             state.loading = payload
+        },
+        updateMemoryDate (state, payload) {
+            let memory = state.loadedMemories.find((memory) => {
+                return memory.id == payload.id
+            })
+            memory.title = payload.title
+            memory.note = payload.note
         }
     },
     getters: {
@@ -154,9 +161,31 @@ export const store = new Vuex.Store({
             })
             .then(() => {
                 commit('deleteMemory', payload)
-                commit('setInfo', "Your memory was deleted")
+                commit('setInfo', {
+                    msg: "Your memory was deleted",
+                    clr: 'warning',
+                    icon: 'priority_high'
+                })
             })  
             .catch((error) => {
+                console.log(error)
+                commit('setLoading', false)
+            })
+        },
+        updateMemoryData ({commit, getters}, payload) {
+            commit('setLoading', true)
+            let user = getters.user
+            const updateObj = {
+                title: payload.title,
+                note: payload.note,
+            }
+            firebase.database().ref('/users/' + user.id).child('/notes/' + payload.id)
+            .update(updateObj)
+            .then(() => {
+                commit('setLoading', false)
+                commit('updateMemoryDate', payload)
+            })
+            .catch(error => {
                 console.log(error)
                 commit('setLoading', false)
             })
@@ -197,6 +226,11 @@ export const store = new Vuex.Store({
                         images: images
                     }).then(() => {
                         commit('setLoading', false)
+                        commit('setInfo', {
+                            msg: "New memory was added successfully",
+                            clr: 'success',
+                            icon: 'check_circle'
+                        })
                         commit('createNote', {
                             title: payload.title, 
                             note: payload.note,
