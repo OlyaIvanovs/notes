@@ -7,17 +7,51 @@
         <v-card-text>
             <ul class="photos">
                 <li v-for="image in memory.images" :key="image.name">
-                    <img class="image" :src="image.url" height="150px">
+                    <img class="image" :src="image.url" width="250px">
                     <v-btn icon @click="deletePhoto(image.name)">
                         <v-icon color="primary">delete</v-icon>
                     </v-btn>
                 </li>
+                <li v-for="addedImage in addedImagesUrls" :key="addedImage.url">
+                    <img class="image" :src="addedImage.url" width="250px">
+                    <v-btn icon @click="deleteAddedPhoto(addedImage.id)">
+                        <v-icon 
+                        color="primary">
+                        delete
+                        </v-icon>
+                    </v-btn>
+                </li>
             </ul>
+            <form>
+                <v-layout row>
+                        <v-flex xs12 sm8>
+                            <v-tooltip left>
+                                <v-btn 
+                                    fab 
+                                    dark 
+                                    small 
+                                    icon
+                                    color="accent" 
+                                    slot="activator" 
+                                    @click="onPickFile">
+                                    <v-icon dark>add</v-icon>
+                                </v-btn>
+                                <span>Add photo</span>
+                            </v-tooltip>
+                            <input type="file" 
+                                multiple
+                                style="display: none;"
+                                ref="fileInput" 
+                                @change="onFilePicked"
+                                accept="image/*">
+                        </v-flex>
+                    </v-layout>
+            </form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" flat="flat" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="green text--darken-2" flat="flat" @click="editMemory">Edit</v-btn>
+          <v-btn color="green text--darken-2" flat="flat" @click="editPhotosMemory">Edit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -30,29 +64,54 @@
         data () {
             return {
                 dialog: false,
-                menu: false
+                menu: false,
+                addedImages: [],
+                addedImagesUrls: [],
+                addedImagesId: 0
             }
         },
         methods: {
-          editMemory () {
-            if (this.memory.title.trim() === '' || this.memory.note.trim() === '') {
-                return
-            }
-            let newDate = new Date(this.memory.date)
+          editPhotosMemory () {
+              console.log(this.memory.numPhotoUpdate)
+              console.log(this.memory)
             this.dialog = false
-            this.$store.dispatch('updateMemoryData', {
-                id: this.memory.id,  
-                title: this.memory.title,
-                note: this.memory.note,
-                date: newDate.toISOString()
-            })
-          },
-          deletePhoto (name) {
-              this.$store.dispatch('deletePhoto', {
-                  memoryId: this.memory.id,
-                  photoName: name
-              })
-          }
+            this.$store.dispatch('updateMemoryPhotos', {
+                images: this.addedImages,
+                memoryId: this.memory.id,
+                numPhotoUpdate: this.memory.numPhotoUpdate
+                })
+            },
+            deletePhoto (name) {
+                this.$store.dispatch('deletePhoto', {
+                    memoryId: this.memory.id,
+                    photoName: name
+                })
+            },
+            deleteAddedPhoto (addedImageId) {
+                this.addedImagesUrls.splice(this.addedImagesUrls.indexOf(image => {
+                    image.id == addedImageId
+                }), 1)
+            },
+            onPickFile () {
+                this.$refs.fileInput.click()
+            },
+            onFilePicked (event) {
+                let images = event.target.files
+                this.addedImages = images
+                for (let i = 0; i < images.length; i++) {
+                    let image = images[i]
+                    const fileReader = new FileReader()
+                    fileReader.addEventListener('load', () => {
+                        let addedImageUrl = {
+                            url: fileReader.result,
+                            id: this.addedImagesId
+                        }
+                        this.addedImagesId = this.addedImagesId + 1
+                        this.addedImagesUrls.push(addedImageUrl)
+                    })
+                    fileReader.readAsDataURL(image)
+                }
+            },
         },
         computed: {
           memory () {

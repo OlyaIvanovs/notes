@@ -157,7 +157,6 @@ export default {
                 })
                 fileReader.readAsDataURL(image)
             }
-
         },
   }
 }

@@ -45,6 +45,13 @@ export const store = new Vuex.Store({
             memory.title = payload.title
             memory.note = payload.note
         },
+        updateMemoryPhotos (state, payload) {
+            let memory = state.loadedMemories.find((memory) => {
+                return memory.id == payload.memoryId
+            })
+            memory.numPhotoUpdate = payload.numPhotoUpdate
+            memory.images = payload.images
+        },
         deletePhoto (state, payload) {
             let memory = state.loadedMemories.find((memory) => {
                 return memory.id == payload.memoryId
@@ -165,7 +172,8 @@ export const store = new Vuex.Store({
                         title: obj[key].title,
                         note: obj[key].note,
                         date: obj[key].date,
-                        images: obj[key].images
+                        images: obj[key].images,
+                        numPhotoUpdate: obj[key].numPhotoUpdate
                     })
                 }
                 commit('setLoading', false)
@@ -208,6 +216,55 @@ export const store = new Vuex.Store({
                 commit('setLoading', false)
             })
         },
+        updateMemoryPhotos ({commit, getters}, payload) {
+            commit('setLoading', true)
+            let user = getters.user
+            let images = payload.images
+            var updatedImages = []
+            let promises = []
+            var numPhotoUpdate = payload.numPhotoUpdate + 1
+
+            function getImagePromise(image, index) {
+                const filename = image.name
+                const ext = filename.slice(filename.lastIndexOf('.'))
+                let thisRef = firebase.storage().ref('notes/' + payload.memoryId + '_' + numPhotoUpdate +'_' + index + '.' + ext)
+                return thisRef.put(image).then((snapshot) => {
+                    let metadata = {
+                        'url': snapshot.metadata.downloadURLs[0],
+                        'name': snapshot.metadata.fullPath
+                    }
+                    return metadata
+                })
+            } 
+
+            for (let i = 0; i < images.length; i++) {
+                promises.push(getImagePromise(images[i], i))
+            }
+            let ref = firebase.database().ref('/users/' + user.id + '/notes/' + payload.memoryId)
+            Promise.all(promises)
+            .then(results => {
+                images = results
+                ref.child('/images/').once('value').then((data) => {
+                    updatedImages = data.val().concat(images)
+                    ref.update({
+                        numPhotoUpdate: numPhotoUpdate,
+                        images: updatedImages
+                    })
+                    .then(() => {
+                        commit('setLoading', false)
+                        commit('updateMemoryPhotos', {
+                            numPhotoUpdate: numPhotoUpdate,
+                            images: updatedImages,
+                            memoryId: payload.memoryId
+                        })
+                    })
+                })
+            })
+            .catch(error => {
+                console.log(error)
+                commit('setLoading', false)
+            })
+        },
         updateMemoryData ({commit, getters}, payload) {
             commit('setLoading', true)
             let user = getters.user
@@ -233,7 +290,10 @@ export const store = new Vuex.Store({
             let key
             let images
             firebase.database().ref('/users/' + user.id).child('/notes/')
-            .push(payload)
+            .push({
+                ...payload,
+                numPhotoUpdate: 0
+            })
             .then(data => {
                 key = data.key
                 return key
@@ -244,7 +304,8 @@ export const store = new Vuex.Store({
                 function getImagePromise(image, index) {
                     const filename = image.name
                     const ext = filename.slice(filename.lastIndexOf('.'))
-                    let thisRef = firebase.storage().ref('notes/' + key + '_' + index + '.' + ext)
+                    let thisRef = firebase.storage()
+                    .ref('notes/' + key + '_' + index + '.' + ext)
                     return thisRef.put(image).then((snapshot) => {
                         let metadata = {
                             'url': snapshot.metadata.downloadURLs[0],
@@ -274,7 +335,8 @@ export const store = new Vuex.Store({
                             note: payload.note,
                             date: payload.date.toString(),
                             images: images,
-                            id: key
+                            id: key,
+                            numPhotoUpdate: 0
                         })
                     })
                 });
