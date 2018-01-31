@@ -92,7 +92,7 @@
                                 <v-container fluid grid-list-sm>
                                     <v-layout row wrap>
                                         <v-flex xs2 v-for="image in imagesUrls" :key="image">
-                                        <img class="image" v-bind:src="image" height="150px">
+                                            <img class="image" v-bind:src="image" height="150px">
                                         </v-flex>
                                     </v-layout>
                                 </v-container>

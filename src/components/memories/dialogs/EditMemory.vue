@@ -6,6 +6,36 @@
         <v-card-title class="headline">Edit memory</v-card-title>
         <v-card-text>
           <form>
+            <v-layout row wrap>
+              <v-flex xs11 sm5>
+                <v-menu
+                    lazy
+                    :close-on-content-click="false"
+                    v-model="menu"
+                    transition="scale-transition"
+                    offset-y
+                    full-width
+                    :nudge-right="40"
+                    max-width="290px"
+                    min-width="290px">
+                      <v-text-field
+                      slot="activator"
+                      label="Date"
+                      v-model="memory.date"
+                      required
+                      ></v-text-field>
+                      <v-date-picker v-model="memory.date" no-title scrollable actions>
+                        <template slot-scope="{ save, cancel }">
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
+                                <v-btn flat color="primary" @click="save">OK</v-btn>
+                            </v-card-actions>
+                        </template>
+                    </v-date-picker>
+                  </v-menu>
+                </v-flex>
+            </v-layout>
             <v-layout row>
               <v-flex xs12>
                   <v-text-field
@@ -46,7 +76,8 @@
         props: ['memoryId'], 
         data () {
             return {
-                dialog: false
+                dialog: false,
+                menu: false
             }
         },
         methods: {
@@ -54,11 +85,13 @@
             if (this.memory.title.trim() === '' || this.memory.note.trim() === '') {
                 return
             }
+            let newDate = new Date(this.memory.date)
             this.dialog = false
             this.$store.dispatch('updateMemoryData', {
                 id: this.memory.id,  
                 title: this.memory.title,
-                note: this.memory.note
+                note: this.memory.note,
+                date: newDate.toISOString()
             })
           }
         },

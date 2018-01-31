@@ -31,15 +31,18 @@
                     </v-card>
                 </v-flex>
                 <v-flex xs6>
-                    <v-carousel :cycle="false">
-                        <v-carousel-item
-                        v-for="(item,i) in memory.images"
-                        v-bind:key="i"
-                        v-bind:src="item.url"
-                        transition="fade"
-                        reverseTransition="fade"
-                        ></v-carousel-item>
-                    </v-carousel>
+                    <template v-if="memory.images">
+                        <v-carousel :cycle="false">
+                            <v-carousel-item
+                            v-for="(item,i) in memory.images"
+                            v-bind:key="i"
+                            v-bind:src="item.url"
+                            transition="fade"
+                            reverseTransition="fade"
+                            ></v-carousel-item>
+                        </v-carousel>
+                        <app-edit-photo-dialog :memoryId="memory.id"></app-edit-photo-dialog>
+                    </template>
                 </v-flex>
             </template>     
         </v-layout>

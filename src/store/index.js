@@ -44,6 +44,13 @@ export const store = new Vuex.Store({
             })
             memory.title = payload.title
             memory.note = payload.note
+        },
+        deletePhoto (state, payload) {
+            let memory = state.loadedMemories.find((memory) => {
+                return memory.id == payload.memoryId
+            })
+            memory.images
+            .splice(memory.images.findIndex(image => image.name == payload.photoName), 1)
         }
     },
     getters: {
@@ -65,7 +72,21 @@ export const store = new Vuex.Store({
         loadedMemory (state, memoryId) {    
             return (memoryId) => {
                 return state.loadedMemories.find((memory) => {
-                    return memory.id == memoryId
+                    if (memory.id == memoryId) {
+                        if (memory.images) {
+                            for (let i = 0; i < memory.images.length; i++) {
+                                if (memory.images[i] == null) {
+                                    memory.images.splice(i, 1)
+                                }
+                            }
+                            // for (const [i, image] of memory.images.entries()) {
+                            //     if (image == null) {
+                            //         memory.images.splice(i, 1)
+                            //     }
+                            // }
+                        }
+                        return memory
+                    }
                 })
             }
         }, 
@@ -74,6 +95,21 @@ export const store = new Vuex.Store({
         }
     },
     actions: {
+        deletePhoto ({getters, commit}, payload) {
+            let user = getters.user
+            firebase.storage().ref(payload.photoName).delete()
+            .then(() => {
+                let ref = firebase.database().ref('/users/' + user.id + '/notes/' + payload.memoryId)
+                ref.child('images').orderByChild('name').equalTo(payload.photoName).on('child_added', (snapshot) => {
+                    snapshot.ref.remove()
+               })
+            }).then(() => {
+                commit('deletePhoto', payload)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+        },
         clearInfo ({commit}) {
             commit('clearInfo')
         },
@@ -178,6 +214,7 @@ export const store = new Vuex.Store({
             const updateObj = {
                 title: payload.title,
                 note: payload.note,
+                date: payload.date
             }
             firebase.database().ref('/users/' + user.id).child('/notes/' + payload.id)
             .update(updateObj)
@@ -219,12 +256,13 @@ export const store = new Vuex.Store({
                 for (let i = 0; i < images.length; i++) {
                     promises.push(getImagePromise(images[i], i))
                 }
+                let ref = firebase.database().ref('/users/' + user.id + '/notes/' + key)
                 Promise.all(promises).then(results => {
                     images = results
-                    return firebase.database().ref('/users/' + user.id + '/notes/')
-                    .child(key).update({
+                    return ref.update({
                         images: images
-                    }).then(() => {
+                    })
+                    .then((data) => {
                         commit('setLoading', false)
                         commit('setInfo', {
                             msg: "New memory was added successfully",

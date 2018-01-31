@@ -8,6 +8,7 @@ import { store } from './store'
 import dateFilter from './filters/date'
 import DeleteMemory from './components/memories/dialogs/DeleteMemory.vue'
 import EditMemory from './components/memories/dialogs/EditMemory.vue'
+import EditPhotoMemory from './components/memories/dialogs/EditPhotoMemory.vue'
 import Alert from './components/shared/Alert.vue'
 
 Vue.use(Vuetify, { theme: {
@@ -23,6 +24,7 @@ Vue.use(Vuetify, { theme: {
 Vue.filter('date', dateFilter)
 Vue.component('app-delete-dialog', DeleteMemory)
 Vue.component('app-edit-dialog', EditMemory)
+Vue.component('app-edit-photo-dialog', EditPhotoMemory)
 Vue.component('app-alert', Alert)
 
 
