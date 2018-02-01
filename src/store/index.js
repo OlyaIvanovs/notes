@@ -51,13 +51,6 @@ export const store = new Vuex.Store({
             })
             memory.numPhotoUpdate = payload.numPhotoUpdate
             memory.images = payload.images
-        },
-        deletePhoto (state, payload) {
-            let memory = state.loadedMemories.find((memory) => {
-                return memory.id == payload.memoryId
-            })
-            memory.images
-            .splice(memory.images.findIndex(image => image.name == payload.photoName), 1)
         }
     },
     getters: {
@@ -102,21 +95,6 @@ export const store = new Vuex.Store({
         }
     },
     actions: {
-        deletePhoto ({getters, commit}, payload) {
-            let user = getters.user
-            firebase.storage().ref(payload.photoName).delete()
-            .then(() => {
-                let ref = firebase.database().ref('/users/' + user.id + '/notes/' + payload.memoryId)
-                ref.child('images').orderByChild('name').equalTo(payload.photoName).on('child_added', (snapshot) => {
-                    snapshot.ref.remove()
-               })
-            }).then(() => {
-                commit('deletePhoto', payload)
-            })
-            .catch(error => {
-                console.log(error)
-            })
-        },
         clearInfo ({commit}) {
             commit('clearInfo')
         },
@@ -216,13 +194,18 @@ export const store = new Vuex.Store({
                 commit('setLoading', false)
             })
         },
-        updateMemoryPhotos ({commit, getters}, payload) {
+        updateMemoryPhotos ({commit, getters, dispatch}, payload) {
             commit('setLoading', true)
             let user = getters.user
             let images = payload.images
-            var updatedImages = []
+            let updatedImages = []
             let promises = []
-            var numPhotoUpdate = payload.numPhotoUpdate + 1
+            let numPhotoUpdate = payload.numPhotoUpdate + 1
+            let ref = firebase.database().ref('/users/' + user.id + '/notes/' + payload.memoryId)
+
+            payload.deletedPhotos.forEach((photoName) => {
+                firebase.storage().ref(photoName).delete()
+            })
 
             function getImagePromise(image, index) {
                 const filename = image.name
@@ -240,16 +223,30 @@ export const store = new Vuex.Store({
             for (let i = 0; i < images.length; i++) {
                 promises.push(getImagePromise(images[i], i))
             }
-            let ref = firebase.database().ref('/users/' + user.id + '/notes/' + payload.memoryId)
+            
             Promise.all(promises)
             .then(results => {
                 images = results
                 ref.child('/images/').once('value').then((data) => {
-                    updatedImages = data.val().concat(images)
+                    let updatedImages = data.val()
+                    if (updatedImages && images) {
+                        updatedImages = updatedImages.concat(images)
+                    }
+                    if (payload.deletedPhotos) {
+                        payload.deletedPhotos.forEach((photoName) => {
+                            updatedImages
+                            .splice(updatedImages.findIndex(image => image.name === photoName), 1)
+                        })
+                    }                   
                     ref.update({
                         numPhotoUpdate: numPhotoUpdate,
                         images: updatedImages
                     })
+                    // .then(() => {
+                    //     ref.child('images').orderByChild('name').equalTo(photoName).on('child_added', (snapshot) => {
+                    //         snapshot.ref.remove()
+                    //    })
+                    // })
                     .then(() => {
                         commit('setLoading', false)
                         commit('updateMemoryPhotos', {

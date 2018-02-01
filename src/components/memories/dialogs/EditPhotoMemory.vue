@@ -8,7 +8,7 @@
             <ul class="photos">
                 <li v-for="image in memory.images" :key="image.name">
                     <img class="image" :src="image.url" width="250px">
-                    <v-btn icon @click="deletePhoto(image.name)">
+                    <v-btn icon @click="deletePhoto(image.name, $event)">
                         <v-icon color="primary">delete</v-icon>
                     </v-btn>
                 </li>
@@ -67,25 +67,23 @@
                 menu: false,
                 addedImages: [],
                 addedImagesUrls: [],
-                addedImagesId: 0
+                addedImagesId: 0,
+                deletedPhotos: []
             }
         },
         methods: {
           editPhotosMemory () {
-              console.log(this.memory.numPhotoUpdate)
-              console.log(this.memory)
             this.dialog = false
             this.$store.dispatch('updateMemoryPhotos', {
                 images: this.addedImages,
                 memoryId: this.memory.id,
-                numPhotoUpdate: this.memory.numPhotoUpdate
+                numPhotoUpdate: this.memory.numPhotoUpdate,
+                deletedPhotos: this.deletedPhotos
                 })
             },
-            deletePhoto (name) {
-                this.$store.dispatch('deletePhoto', {
-                    memoryId: this.memory.id,
-                    photoName: name
-                })
+            deletePhoto (name, event) {
+                event.target.closest('li').style.display = 'none'
+                this.deletedPhotos.push(name)
             },
             deleteAddedPhoto (addedImageId) {
                 this.addedImagesUrls.splice(this.addedImagesUrls.indexOf(image => {
