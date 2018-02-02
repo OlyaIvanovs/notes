@@ -5,31 +5,61 @@
                 <h2 class="primary--text">My family</h2>
             </v-flex>
         </v-layout>
-        <v-layout>
-            <v-list>
-                <v-list-tile v-for="(member,i) in members" :key="i" >
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ member.email }}</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-        </v-list>
-        </v-layout>
-        <v-layout row>
-            <v-flex xs12 sm8>
-                <app-add-member-dialog></app-add-member-dialog>
+        <v-layout row wrap align-center v-if="loading">
+            <v-flex xs12 class="text-xs-center">
+                <v-progress-circular 
+                    indeterminate 
+                    :width="6"
+                    :size="70"
+                    color="primary">
+                </v-progress-circular>
             </v-flex>
         </v-layout>
+        <template v-else>
+            <v-layout row v-if="info">
+                <v-flex xs12 sm8>
+                    <app-alert @dismissed="onDismiss" :text="info.msg" :color="info.clr"></app-alert>
+                </v-flex>
+            </v-layout>
+            <v-layout>
+                <v-list>
+                    <v-list-tile v-for="(member,i) in members" :key="i" >
+                        <v-list-tile-content>
+                            <v-list-tile-title>
+                                {{ member.email }}
+                            </v-list-tile-title>
+                        </v-list-tile-content>
+                        <v-list-tile-action>
+                            <app-delete-member-dialog :memberId="member.id"></app-delete-member-dialog>
+                        </v-list-tile-action>
+                    </v-list-tile>
+            </v-list>
+            </v-layout>
+            <v-layout row>
+                <v-flex xs12 sm8>
+                    <app-add-member-dialog></app-add-member-dialog>
+                </v-flex>
+            </v-layout>
+        </template>
     </v-container>
 </template>
 
 <script>
+import {mapGetters} from 'vuex'
+
 export default {
   data () {
       return {
 
       }
   },
+  methods: {
+        onDismiss () {
+            this.$store.dispatch('clearInfo')
+        }
+  },
   computed: {
+        ...mapGetters(['members', 'loading', 'info']),
         members () {
             return this.$store.getters.members
         },

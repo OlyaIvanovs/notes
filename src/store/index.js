@@ -36,6 +36,10 @@ export const store = new Vuex.Store({
             state.loadedMemories
             .splice(state.loadedMemories.findIndex(memory => memory.id === payload), 1)
         },
+        deleteMember (state, payload) {
+            state.members
+            .splice(state.members.findIndex(member => member.id === payload), 1)
+        },
         clearInfo (state, payload) {
             state.info = null
         },
@@ -148,7 +152,8 @@ export const store = new Vuex.Store({
         loadMemories ({commit, getters}) {
             commit('setLoading', true)
             let user = getters.user
-            firebase.database().ref('/users/' + user.id).child('/notes/').once('value')
+            firebase.database().ref('/users/' + user.id)
+            .child('/notes/').once('value')
             .then((data) => {
                 const memories = []
                 const obj = data.val()
@@ -172,8 +177,11 @@ export const store = new Vuex.Store({
         members ({commit, getters}) {
             commit('setLoading', true)
             let user = getters.user
-            firebase.database().ref('/users/' + user.id).child('/members/').once('value')
+            firebase.database().ref('/users/' + user.id)
+            .child('/members/')
+            .once('value')
             .then((data) => {
+                commit('setLoading', false)
                 const members = []
                 const obj = data.val()
                 for (let key in obj) {
@@ -182,16 +190,34 @@ export const store = new Vuex.Store({
                         email: obj[key]
                     })
                 }
-                commit('setLoading', false)
                 commit('setMembers', members)
             }).catch((error) => {
                 console.log(error)
                 commit('setLoading', false)
             })
         },
+        deleteMember ({commit, getters}, payload) {
+            let user = getters.user
+            firebase.database().ref('/users/' + user.id)
+            .child('/members/' + payload)
+            .remove()
+            .then(() => {
+                commit('deleteMember', payload)
+                commit('setInfo', {
+                    msg: "Member was deleted",
+                    clr: 'warning',
+                    icon: 'priority_high'
+                })
+            })
+            .catch((error) => {
+                console.log(error)
+                commit('setLoading', false)
+            })
+        },
         deleteMemory ({commit, getters}, payload) {
             let user = getters.user
-            firebase.database().ref('/users/' + user.id).child('/notes/' + payload + '/images/')
+            firebase.database().ref('/users/' + user.id)
+            .child('/notes/' + payload + '/images/')
             .once('value')
             .then((data) => {
                 let images = data.val()
@@ -206,7 +232,8 @@ export const store = new Vuex.Store({
                 }
             })
             .then(() => {
-                firebase.database().ref('/users/' + user.id).child('/notes/' + payload)
+                firebase.database().ref('/users/' + user.id)
+                .child('/notes/' + payload)
                 .remove()
             })
             .then(() => {
@@ -229,7 +256,8 @@ export const store = new Vuex.Store({
             let updatedImages = []
             let promises = []
             let numPhotoUpdate = payload.numPhotoUpdate + 1
-            let ref = firebase.database().ref('/users/' + user.id + '/notes/' + payload.memoryId)
+            let ref = firebase.database()
+            .ref('/users/' + user.id + '/notes/' + payload.memoryId)
 
             payload.deletedPhotos.forEach((photoName) => {
                 firebase.storage().ref(photoName).delete()
@@ -238,7 +266,8 @@ export const store = new Vuex.Store({
             function getImagePromise(image, index) {
                 const filename = image.name
                 const ext = filename.slice(filename.lastIndexOf('.'))
-                let thisRef = firebase.storage().ref('notes/' + payload.memoryId + '_' + numPhotoUpdate +'_' + index + '.' + ext)
+                let thisRef = firebase.storage()
+                .ref('notes/' + payload.memoryId + '_' + numPhotoUpdate +'_' + index + '.' + ext)
                 return thisRef.put(image).then((snapshot) => {
                     let metadata = {
                         'url': snapshot.metadata.downloadURLs[0],
@@ -298,7 +327,8 @@ export const store = new Vuex.Store({
                 note: payload.note,
                 date: payload.date
             }
-            firebase.database().ref('/users/' + user.id).child('/notes/' + payload.id)
+            firebase.database().ref('/users/' + user.id)
+            .child('/notes/' + payload.id)
             .update(updateObj)
             .then(() => {
                 commit('setLoading', false)
@@ -312,9 +342,12 @@ export const store = new Vuex.Store({
         addMember ({commit, getters}, payload) {
             commit('setLoading', true)
             let user = getters.user
-            firebase.database().ref('/users/' + user.id).child('/members/')
+            firebase.database().ref('/users/' + user.id)
+            .child('/members/')
             .push(payload)
+            .then(() => commit('setLoading', false))
             .catch((error) => {
+                commit('setLoading', false)
                 console.log(error)
             }) 
         },
@@ -323,7 +356,8 @@ export const store = new Vuex.Store({
             let user = getters.user
             let key
             let images
-            firebase.database().ref('/users/' + user.id).child('/notes/')
+            firebase.database().ref('/users/' + user.id)
+            .child('/notes/')
             .push({
                 ...payload,
                 numPhotoUpdate: 0
