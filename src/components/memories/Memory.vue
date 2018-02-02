@@ -35,8 +35,8 @@
                         <v-carousel :cycle="false">
                             <v-carousel-item
                             v-for="(item,i) in memory.images"
-                            v-bind:key="i"
-                            v-bind:src="item.url"
+                            :key="i"
+                            :src="item.url"
                             transition="fade"
                             reverseTransition="fade"
                             ></v-carousel-item>

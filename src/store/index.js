@@ -10,7 +10,8 @@ export const store = new Vuex.Store({
         loadedMemories: [],
         loading: false,
         info: null,
-        loading: false
+        loading: false,
+        members: []
     },
     mutations: {
         setLoading (state, payload) {
@@ -22,15 +23,18 @@ export const store = new Vuex.Store({
         setLoadedMemories (state, payload) {
             state.loadedMemories = payload
         },
+        setInfo (state, payload) {
+            state.info = payload
+        },
+        setMembers (state, payload) {
+            state.members = payload
+        },
         createNote (state, payload) {
             state.loadedMemories.push(payload)
         },
         deleteMemory (state, payload) {
             state.loadedMemories
             .splice(state.loadedMemories.findIndex(memory => memory.id === payload), 1)
-        },
-        setInfo (state, payload) {
-            state.info = payload
         },
         clearInfo (state, payload) {
             state.info = null
@@ -69,6 +73,9 @@ export const store = new Vuex.Store({
             })
             // .slice(0, 10)
         },
+        members (state) {
+            return state.members
+        },
         loadedMemory (state, memoryId) {    
             return (memoryId) => {
                 return state.loadedMemories.find((memory) => {
@@ -103,6 +110,7 @@ export const store = new Vuex.Store({
                 id: payload.uid
             })
             dispatch('loadMemories')
+            dispatch('members')
         },
         signUserUp ({commit}, payload) {
             firebase.auth()
@@ -156,6 +164,26 @@ export const store = new Vuex.Store({
                 }
                 commit('setLoading', false)
                 commit('setLoadedMemories', memories)
+            }).catch((error) => {
+                console.log(error)
+                commit('setLoading', false)
+            })
+        },
+        members ({commit, getters}) {
+            commit('setLoading', true)
+            let user = getters.user
+            firebase.database().ref('/users/' + user.id).child('/members/').once('value')
+            .then((data) => {
+                const members = []
+                const obj = data.val()
+                for (let key in obj) {
+                    members.push({
+                        id: key,
+                        email: obj[key]
+                    })
+                }
+                commit('setLoading', false)
+                commit('setMembers', members)
             }).catch((error) => {
                 console.log(error)
                 commit('setLoading', false)
@@ -280,6 +308,15 @@ export const store = new Vuex.Store({
                 console.log(error)
                 commit('setLoading', false)
             })
+        },
+        addMember ({commit, getters}, payload) {
+            commit('setLoading', true)
+            let user = getters.user
+            firebase.database().ref('/users/' + user.id).child('/members/')
+            .push(payload)
+            .catch((error) => {
+                console.log(error)
+            }) 
         },
         createNote ({commit, getters}, payload) {
             commit('setLoading', true)
