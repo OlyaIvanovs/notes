@@ -8,18 +8,19 @@ import Memory from '@/components/memories/Memory'
 import CreateMemory from '@/components/memories/CreateMemory'
 import Memories from '@/components/memories/Memories'
 import SharedMemories from '@/components/memories/SharedMemories'
+import AuthGuard from './auth-guard'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
-    { path: '/', name: 'Memories', component: Memories  },
+    { path: '/', name: 'Memories', component: Memories, beforeEnter: AuthGuard },
     { path: '/signup', name: 'SignUp', component: SignUp },
     { path: '/signin', name: 'SignIn', component: SignIn },
-    { path: '/profile', name: 'Profile', component: Profile },
-    { path: '/memories/new', name: 'CreateMemory', component: CreateMemory },
-    { path: '/memories/shared', name: 'SharedMemories', component: SharedMemories },
-    { path: '/memories/:id', name: 'Memory', component: Memory,  props: true }
+    { path: '/profile', name: 'Profile', component: Profile, beforeEnter: AuthGuard },
+    { path: '/memories/new', name: 'CreateMemory', component: CreateMemory, beforeEnter: AuthGuard },
+    { path: '/memories/shared', name: 'SharedMemories', component: SharedMemories, beforeEnter: AuthGuard },
+    { path: '/memories/:id', name: 'Memory', component: Memory,  props: true, beforeEnter: AuthGuard }
   ],
   mode: 'history'
 })

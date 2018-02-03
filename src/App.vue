@@ -13,7 +13,7 @@
           <v-icon left>{{ item.icon }}</v-icon> 
           {{ item.title }}
         </v-btn>
-        <v-btn flat dark @click="onLogOut">
+        <v-btn flat dark @click="onLogOut" v-if="user">
           <v-icon left>exit_to_app</v-icon>
           Log out
         </v-btn>

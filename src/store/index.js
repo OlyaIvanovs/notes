@@ -36,6 +36,9 @@ export const store = new Vuex.Store({
             state.loadedMemories
             .splice(state.loadedMemories.findIndex(memory => memory.id === payload), 1)
         },
+        addMember (state, payload) {
+            state.members.push(payload)
+        },
         deleteMember (state, payload) {
             state.members
             .splice(state.members.findIndex(member => member.id === payload), 1)
@@ -123,6 +126,10 @@ export const store = new Vuex.Store({
                 const user = {
                     id: userData.uid
                 }
+                firebase.database().ref('/users_data/').push({
+                    id: userData.uid,
+                    email: userData.email
+                })
                 commit('setUser', user)
             })
             .catch(error => {
@@ -342,10 +349,27 @@ export const store = new Vuex.Store({
         addMember ({commit, getters}, payload) {
             commit('setLoading', true)
             let user = getters.user
-            firebase.database().ref('/users/' + user.id)
-            .child('/members/')
-            .push(payload)
-            .then(() => commit('setLoading', false))
+            firebase.database().ref('/users_data/').once('value')
+            .then((data) => {
+                let users = data.val()
+                let member
+                console.log(users)
+                for (let key in users) {
+                    if (users[key].email == payload) {
+                        return users[key]
+                    }
+                }
+            })
+            .then((member) => {
+                console.log(member)
+                firebase.database().ref('/users/' + user.id)
+                .child('/members/')
+                .push(member.id)
+                .then(() => {
+                    commit('setLoading', false)
+                    commit('addMember', member.id)
+                })
+            })
             .catch((error) => {
                 commit('setLoading', false)
                 console.log(error)
