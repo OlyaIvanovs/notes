@@ -1,5 +1,10 @@
 <template>
     <v-container>
+        <v-layout row v-if="error">
+            <v-flex xs12 sm8>
+                <app-alert @dismissed="onDismiss" :text="error.message"></app-alert>
+            </v-flex>
+        </v-layout>
         <v-layout row>
             <v-flex xs12 sm8>
                 <v-card>
@@ -70,7 +75,7 @@
                 this.password && 
                 this.emailRules[1](this.email) === true
             },
-            ...mapGetters(['user']),
+            ...mapGetters(['user', 'error']),
         },
         watch: {
             user (value) {
@@ -85,6 +90,9 @@
                     email: this.email,
                     password: this.password
                 })
+            },
+            onDismiss () {
+                this.$store.dispatch('clearError')
             } 
         }
     }

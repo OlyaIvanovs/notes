@@ -11,9 +11,16 @@ export const store = new Vuex.Store({
         loading: false,
         info: null,
         loading: false,
-        members: []
+        members: [],
+        error: null
     },
     mutations: {
+        setError (state, payload) {
+            state.error = payload
+        },
+        clearError (state, payload) {
+            state.error = null
+        },
         setLoading (state, payload) {
             state.loading = payload
         },
@@ -37,7 +44,6 @@ export const store = new Vuex.Store({
             .splice(state.loadedMemories.findIndex(memory => memory.id === payload), 1)
         },
         addMember (state, payload) {
-            console.log(payload)
             state.members.push(payload)
         },
         deleteMember (state, payload) {
@@ -71,6 +77,9 @@ export const store = new Vuex.Store({
         },
         info (state) {
             return state.info
+        },
+        error (state) {
+            return state.error
         },
         loading (state) {
             return state.loading
@@ -113,6 +122,9 @@ export const store = new Vuex.Store({
         clearInfo ({commit}) {
             commit('clearInfo')
         },
+        clearError ({commit}) {
+            commit('clearError')
+        },
         autoSignIn ({commit, dispatch}, payload) {
             commit('setUser', {
                 id: payload.uid
@@ -134,6 +146,7 @@ export const store = new Vuex.Store({
             })
             .catch(error => {
                 console.log(error)
+                commit('setError', error)
               });
         },
         signUserIn ({commit}, payload) {
@@ -146,6 +159,7 @@ export const store = new Vuex.Store({
                 commit('setUser', user)
             })
             .catch(error => {
+                commit('setError', error)
                 console.log(error)
               });
         },
@@ -362,6 +376,7 @@ export const store = new Vuex.Store({
                     }
                 } 
                 throw new Error('User with this email is not registered yet. You can invite him.')
+                
             })
             .then((key) => {
                 firebase.database().ref('/users/' + user.id)
@@ -377,6 +392,7 @@ export const store = new Vuex.Store({
             })
             .catch((error) => {
                 commit('setLoading', false)
+                commit('setError', error)
                 console.log(error)
             }) 
         },

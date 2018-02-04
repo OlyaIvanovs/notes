@@ -16,9 +16,9 @@
             </v-flex>
         </v-layout>
         <template v-else>
-            <v-layout row v-if="info">
+            <v-layout row v-if="error">
                 <v-flex xs12 sm8>
-                    <app-alert @dismissed="onDismiss" :text="info.msg" :color="info.clr"></app-alert>
+                    <app-alert @dismissed="onDismiss" :text="error.message"></app-alert>
                 </v-flex>
             </v-layout>
             <v-layout>
@@ -48,21 +48,21 @@
 import {mapGetters} from 'vuex'
 
 export default {
-  data () {
-      return {
+    data () {
+        return {
 
-      }
-  },
-  methods: {
-        onDismiss () {
-            this.$store.dispatch('clearInfo')
         }
-  },
-  computed: {
-        ...mapGetters(['members', 'loading', 'info']),
-        members () {
-            return this.$store.getters.members
-        },
-    }
+    },
+    methods: {
+        onDismiss () {
+            this.$store.dispatch('clearError')
+        }
+    },
+    computed: {
+            ...mapGetters(['members', 'loading', 'error']),
+            members () {
+                return this.$store.getters.members
+            },
+        }
 }
 </script>
