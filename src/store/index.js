@@ -37,6 +37,7 @@ export const store = new Vuex.Store({
             .splice(state.loadedMemories.findIndex(memory => memory.id === payload), 1)
         },
         addMember (state, payload) {
+            console.log(payload)
             state.members.push(payload)
         },
         deleteMember (state, payload) {
@@ -126,8 +127,7 @@ export const store = new Vuex.Store({
                 const user = {
                     id: userData.uid
                 }
-                firebase.database().ref('/users_data/').push({
-                    id: userData.uid,
+                firebase.database().ref('/users/' + userData.uid).update({
                     email: userData.email
                 })
                 commit('setUser', user)
@@ -192,9 +192,13 @@ export const store = new Vuex.Store({
                 const members = []
                 const obj = data.val()
                 for (let key in obj) {
-                    members.push({
-                        id: key,
-                        email: obj[key]
+                    firebase.database().ref('/users/' + obj[key])
+                    .once('value')
+                    .then((data) => {
+                        members.push({
+                            id: key,
+                            email: data.val().email
+                        })
                     })
                 }
                 commit('setMembers', members)
@@ -349,25 +353,26 @@ export const store = new Vuex.Store({
         addMember ({commit, getters}, payload) {
             commit('setLoading', true)
             let user = getters.user
-            firebase.database().ref('/users_data/').once('value')
+            firebase.database().ref('/users/').once('value')
             .then((data) => {
                 let users = data.val()
-                let member
-                console.log(users)
                 for (let key in users) {
                     if (users[key].email == payload) {
-                        return users[key]
+                        return key
                     }
-                }
+                } 
+                throw new Error('User with this email is not registered yet. You can invite him.')
             })
-            .then((member) => {
-                console.log(member)
+            .then((key) => {
                 firebase.database().ref('/users/' + user.id)
                 .child('/members/')
-                .push(member.id)
+                .push(key)
                 .then(() => {
                     commit('setLoading', false)
-                    commit('addMember', member.id)
+                    commit('addMember', {
+                        id: key,
+                        email: payload
+                    })
                 })
             })
             .catch((error) => {
