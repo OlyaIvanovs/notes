@@ -12,6 +12,9 @@
         <v-layout row wrap justify-space-between v-else>
             <template v-if="memory">
                 <v-flex xs5>
+                    <template v-if="info">
+                        <app-alert @dismissed="onDismiss" :text="info.msg" :color="info.clr"></app-alert>
+                    </template>
                     <v-card>
                         <v-card-title>
                             <div>
@@ -24,7 +27,7 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn icon><v-icon>share</v-icon></v-btn>
+                            <app-share-memory-dialog :memoryId="memory.id"></app-share-memory-dialog>
                             <app-edit-dialog :memoryId="memory.id"></app-edit-dialog>
                             <app-delete-dialog :memoryId="memory.id"></app-delete-dialog>
                         </v-card-actions>
@@ -50,6 +53,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex"
+
 export default {
     props: ['id'],
     data () {
@@ -61,12 +66,12 @@ export default {
         memory () {
             return this.$store.getters.loadedMemory(this.id)
         },
-        loading () {
-            return this.$store.getters.loading
-        }
+        ...mapGetters(['loading', 'info'])
     },
     methods: {
-
+        onDismiss () {
+            this.$store.dispatch('clearInfo')
+        }
     }
 }
 </script>

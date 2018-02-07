@@ -34,16 +34,23 @@
                         <router-link style="display: block; text-decoration: none;"  
                         :to="{name: 'Memory', params: {id: item.id}}">
                             <v-card>
-                                <v-list two-line>
+                                <!-- <v-list two-line :class="{red lighten-4: item.shared}"> -->
+                                <v-list two-line :class="[item.shared ? 'red lighten-4': '']">
                                     <v-list-tile :key="item.title">
                                     <v-list-tile-content>
-                                        <v-list-tile-title class="primary--text">{{ item.title }}</v-list-tile-title>
+                                        <v-list-tile-title class="primary--text">
+                                            {{ item.title }}
+                                            <v-tooltip right v-if="item.shared">
+                                                <v-icon slot="activator">sync</v-icon>
+                                                <span>Shared with you</span>
+                                            </v-tooltip>
+                                        </v-list-tile-title>
                                         <v-list-tile-sub-title class="grey--text text--darken-4">{{ item.note }}</v-list-tile-sub-title>
                                         <v-list-tile-sub-title>{{ item.date | date}}</v-list-tile-sub-title>
                                     </v-list-tile-content>
                                     </v-list-tile>
-                                    <v-divider v-if="index + 1 < loadedMemories.length"></v-divider>
                                 </v-list>
+                                <v-divider v-if="index + 1 < loadedMemories.length"></v-divider>
                             </v-card>
                         </router-link>
                         </template>

@@ -15,6 +15,9 @@ export const store = new Vuex.Store({
         error: null
     },
     mutations: {
+        shareMemory (state, payload) {
+            console.log('shareMemory')
+        },
         setError (state, payload) {
             state.error = payload
         },
@@ -119,6 +122,42 @@ export const store = new Vuex.Store({
         }
     },
     actions: {
+        shareMemory ({commit}, payload) {
+            let promises = []
+            let memoryId = payload.memoryId
+
+            function getSelectedMemberPromise(memberId) {
+                return firebase.database()
+                .ref('/notes/' + memoryId + '/shared/')
+                .push(memberId)
+                .then(() => {
+                    console.log(memberId)
+                    firebase.database().ref('/users/' + memberId).child('/notes/')
+                    .push({id: memoryId})
+                })
+            } 
+            
+            if (payload.selectedMembers.length == 0) {
+                commit('setInfo', {
+                    msg: "You haven't share your memory;( Try again.",
+                    clr: 'warning',
+                    icon: 'priority_high'
+                })
+            } else {
+                payload.selectedMembers.forEach(member => {
+                    console.log(member.id)
+                    promises.push(getSelectedMemberPromise(member.id))
+                })
+    
+                Promise.all(promises).then(() => {
+                    commit('shareMemory', payload)
+                })
+                .catch(error => {
+                    console.log(error)
+                    commit('setError', error)
+                })
+            }
+        },
         clearInfo ({commit}) {
             commit('clearInfo')
         },
@@ -147,7 +186,7 @@ export const store = new Vuex.Store({
             .catch(error => {
                 console.log(error)
                 commit('setError', error)
-              });
+            })
         },
         signUserIn ({commit}, payload) {
             firebase.auth()
@@ -174,17 +213,22 @@ export const store = new Vuex.Store({
             commit('setLoading', true)
             let promises = []
 
-            function getMemoryPromise(id) {
+            function getMemoryPromise(id, user) {
                 return firebase.database().ref('/notes/' + id)
                 .once('value').then(data => {
                     let info = data.val()
+                    let shared = (user != data.val().owner)
+                    console.log(user)
+                    console.log(data.val().owner)
                     return {
                         id: data.key,
                         title: info.title,
                         note: info.note,
                         date: info.date,
                         images: info.images,
-                        numPhotoUpdate: info.numPhotoUpdate
+                        numPhotoUpdate: info.numPhotoUpdate,
+                        owner: info.owner,
+                        shared: shared
                     }
                 })
             } 
@@ -195,7 +239,7 @@ export const store = new Vuex.Store({
                 let memories = []
                 const obj = data.val()
                 for (let key in obj) {
-                    promises.push(getMemoryPromise(obj[key].id))
+                    promises.push(getMemoryPromise(obj[key].id, user.id))
                 }
                 Promise.all(promises).then(results => {
                     memories = results
@@ -226,7 +270,7 @@ export const store = new Vuex.Store({
                     .once('value')
                     .then((data) => {
                         members.push({
-                            id: key,
+                            id: obj[key],
                             email: data.val().email
                         })
                     })
@@ -306,7 +350,7 @@ export const store = new Vuex.Store({
             let promises = []
             let numPhotoUpdate = payload.numPhotoUpdate + 1
             let ref = firebase.database()
-            .ref('/users/' + user.id + '/notes/' + payload.memoryId)
+            .ref('/notes/' + payload.memoryId)
 
             payload.deletedPhotos.forEach((photoName) => {
                 firebase.storage().ref(photoName).delete()
@@ -376,8 +420,7 @@ export const store = new Vuex.Store({
                 note: payload.note,
                 date: payload.date
             }
-            firebase.database().ref('/users/' + user.id)
-            .child('/notes/' + payload.id)
+            firebase.database().ref('/notes/' + payload.id)
             .update(updateObj)
             .then(() => {
                 commit('setLoading', false)
@@ -430,6 +473,7 @@ export const store = new Vuex.Store({
             .push({
                 ...payload,
                 numPhotoUpdate: 0,
+                shared: [], 
                 owner: user.id
             })
             .then(data => {
@@ -476,7 +520,8 @@ export const store = new Vuex.Store({
                             date: payload.date.toString(),
                             images: images,
                             id: key,
-                            numPhotoUpdate: 0
+                            numPhotoUpdate: 0,
+                            shared: false
                         })
                     })
                 });
