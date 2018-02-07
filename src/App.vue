@@ -40,7 +40,6 @@
         if (this.user) {
           menuItems = [
             {icon: 'note', title: 'Write memory', link: '/memories/new'},
-            {icon: 'sync', title: 'Shared', link: '/memories/shared'},
             {icon: 'person', title: 'Profile', link: '/profile'}
           ]
         } else {

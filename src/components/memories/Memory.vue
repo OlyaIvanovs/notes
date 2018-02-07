@@ -25,12 +25,18 @@
                         <v-card-text>
                             {{ memory.note }}
                         </v-card-text>
-                        <v-card-actions>
+                        <v-card-actions v-if="!memory.shared">
                             <v-spacer></v-spacer>
                             <app-share-memory-dialog :memoryId="memory.id"></app-share-memory-dialog>
                             <app-edit-dialog :memoryId="memory.id"></app-edit-dialog>
                             <app-delete-dialog :memoryId="memory.id"></app-delete-dialog>
                         </v-card-actions>
+                        <v-card-text v-else>
+                            <span class="grey--text">
+                                <v-icon color="primary">sync</v-icon>
+                                {{ memory.owner }} shared this memory with you
+                            </span>
+                        </v-card-text>
                     </v-card>
                 </v-flex>
                 <v-flex xs6>
@@ -44,7 +50,7 @@
                             reverseTransition="fade"
                             ></v-carousel-item>
                         </v-carousel>
-                        <app-edit-photo-dialog :memoryId="memory.id"></app-edit-photo-dialog>
+                        <app-edit-photo-dialog v-if="!memory.shared" :memoryId="memory.id"></app-edit-photo-dialog>
                     </template>
                 </v-flex>
             </template>     
@@ -59,7 +65,7 @@ export default {
     props: ['id'],
     data () {
         return {
-
+            memoryOwner: ''
         }
     },
     computed: {

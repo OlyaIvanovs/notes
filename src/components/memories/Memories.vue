@@ -58,20 +58,36 @@
                 </v-layout>
             </v-flex>
             <v-flex sm5 class="hidden-xs-only">
-                <h3 class="primary--text">Filter memories by date</h3>
-                <v-date-picker 
-                    color="accent" 
-                    header-color="primary" 
-                    v-model="picker" 
-                    landscape>
-                </v-date-picker>
-                <v-btn v-if="picker"
-                    flat 
-                    class="accent" 
-                    @click="clearDateFilter"
-                    dark>
-                    Clear date filter
-                </v-btn>
+                <v-layout row>
+                    <v-flex xs12 sm6>
+                        <v-select
+                        :items="filterOptions"
+                        v-model="filterOption"
+                        label="Filter memories"
+                        autocomplete
+                        ></v-select>
+                    </v-flex>
+                </v-layout>
+                <v-layout row>
+                    <v-flex xs12>
+                        <h3 class="primary--text">Filter memories by date</h3>
+                    </v-flex>
+                </v-layout>
+                <v-layout row>
+                    <v-date-picker 
+                        color="accent" 
+                        header-color="primary" 
+                        v-model="picker" 
+                        landscape>
+                    </v-date-picker>
+                    <v-btn v-if="picker"
+                        flat 
+                        class="accent" 
+                        @click="clearDateFilter"
+                        dark>
+                        Clear date filter
+                    </v-btn>
+                </v-layout>
             </v-flex>
         </v-layout>
     </v-container>
@@ -84,7 +100,9 @@ export default {
     data () {
         return {
             picker: '',
-            search: ''
+            search: '',
+            filterOptions: ['All', 'Only yours', 'Shared with you'],
+            filterOption: null
         }
     },
     computed: {
@@ -101,6 +119,16 @@ export default {
                 memories = memories.filter((memory) => {
                     let memoryDate= new Date(memory.date)
                     return memoryDate.getTime() == date.getTime()
+                })
+            }
+            if (this.filterOption == "Only yours") {
+                memories = memories.filter((memory) => {
+                    return !memory.shared 
+                })
+            }
+            if (this.filterOption == "Shared with you") {
+                memories = memories.filter((memory) => {
+                    return memory.shared 
                 })
             }
             return memories

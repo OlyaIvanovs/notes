@@ -218,8 +218,6 @@ export const store = new Vuex.Store({
                 .once('value').then(data => {
                     let info = data.val()
                     let shared = (user != data.val().owner)
-                    console.log(user)
-                    console.log(data.val().owner)
                     return {
                         id: data.key,
                         title: info.title,
@@ -230,8 +228,16 @@ export const store = new Vuex.Store({
                         owner: info.owner,
                         shared: shared
                     }
-                })
+                }).then((data) => {
+                    let memory = data
+                    firebase.database().ref('/users/' + data.owner).once('value')
+                    .then((data) => {
+                        memory.owner = data.val().email
+                    })
+                    return memory
+                }) 
             } 
+
             let user = getters.user
             firebase.database().ref('/users/' + user.id)
             .child('/notes/').once('value')
