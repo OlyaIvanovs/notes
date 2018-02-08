@@ -69,7 +69,6 @@
                     selectedMembers: this.selectedMembers,
                     memoryId: this.memoryId
                 })
-                console.log(this.selectedMembers)
                 this.dialog = false
                 this.selectedMembers = []
             }

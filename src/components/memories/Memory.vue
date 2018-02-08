@@ -25,6 +25,13 @@
                         <v-card-text>
                             {{ memory.note }}
                         </v-card-text>
+                        <v-card-text class="grey--text" v-if="showSharedList">
+                            You shared this memory with
+                            <span v-for="(member, index) in memory.sharedList" :key="member">
+                                {{member}}
+                                <span v-if="index + 1 < memory.sharedList.length">&comma;</span>
+                            </span>
+                        </v-card-text>
                         <v-card-actions v-if="!memory.shared">
                             <v-spacer></v-spacer>
                             <app-share-memory-dialog :memoryId="memory.id"></app-share-memory-dialog>
@@ -71,6 +78,11 @@ export default {
     computed: {
         memory () {
             return this.$store.getters.loadedMemory(this.id)
+        },
+        showSharedList () {
+            return this.memory.sharedList && 
+            this.memory.sharedList.length && 
+            !this.memory.shared
         },
         ...mapGetters(['loading', 'info'])
     },

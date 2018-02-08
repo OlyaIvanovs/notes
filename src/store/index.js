@@ -16,7 +16,14 @@ export const store = new Vuex.Store({
     },
     mutations: {
         shareMemory (state, payload) {
-            console.log('shareMemory')
+            let memory = state.loadedMemories.find((memory) => {
+                return memory.id == payload.memoryId
+            })
+            payload.selectedMembers.forEach(member => {
+                if (memory.sharedList.indexOf(member.email) == -1) {
+                    memory.sharedList.push(member.email)
+                }
+            })
         },
         setError (state, payload) {
             state.error = payload
@@ -126,13 +133,12 @@ export const store = new Vuex.Store({
             let promises = []
             let memoryId = payload.memoryId
 
-            function getSelectedMemberPromise(memberId) {
+            function getSelectedMemberPromise(member){
                 return firebase.database()
-                .ref('/notes/' + memoryId + '/shared/')
-                .push(memberId)
+                .ref('/notes/' + memoryId + '/shared/' + member.uid)
+                .set({ email: member.email})
                 .then(() => {
-                    console.log(memberId)
-                    firebase.database().ref('/users/' + memberId).child('/notes/')
+                    firebase.database().ref('/users/' + member.uid).child('/notes/')
                     .push({id: memoryId})
                 })
             } 
@@ -145,12 +151,16 @@ export const store = new Vuex.Store({
                 })
             } else {
                 payload.selectedMembers.forEach(member => {
-                    console.log(member.id)
-                    promises.push(getSelectedMemberPromise(member.id))
+                    promises.push(getSelectedMemberPromise(member))
                 })
     
                 Promise.all(promises).then(() => {
                     commit('shareMemory', payload)
+                    commit('setInfo', {
+                        msg: "Hooray! You've shared your memory",
+                        clr: 'warning',
+                        icon: 'priority_high'
+                    })
                 })
                 .catch(error => {
                     console.log(error)
@@ -218,6 +228,12 @@ export const store = new Vuex.Store({
                 .once('value').then(data => {
                     let info = data.val()
                     let shared = (user != data.val().owner)
+                    let sharedList = []
+                    if (data.val().shared) {
+                        for (let key in data.val().shared) {
+                            sharedList.push(data.val().shared[key].email)
+                        }
+                    } 
                     return {
                         id: data.key,
                         title: info.title,
@@ -226,7 +242,8 @@ export const store = new Vuex.Store({
                         images: info.images,
                         numPhotoUpdate: info.numPhotoUpdate,
                         owner: info.owner,
-                        shared: shared
+                        shared: shared,
+                        sharedList: sharedList
                     }
                 }).then((data) => {
                     let memory = data
@@ -248,14 +265,9 @@ export const store = new Vuex.Store({
                     promises.push(getMemoryPromise(obj[key].id, user.id))
                 }
                 Promise.all(promises).then(results => {
-                    memories = results
-                    return memories
-                }).then(data => {
                     commit('setLoading', false)
-                    commit('setLoadedMemories', data)
+                    commit('setLoadedMemories', results)
                 })
-
-                
             }).catch((error) => {
                 console.log(error)
                 commit('setLoading', false)
@@ -276,7 +288,8 @@ export const store = new Vuex.Store({
                     .once('value')
                     .then((data) => {
                         members.push({
-                            id: obj[key],
+                            id: key,
+                            uid: obj[key],
                             email: data.val().email
                         })
                     })
@@ -288,6 +301,7 @@ export const store = new Vuex.Store({
             })
         },
         deleteMember ({commit, getters}, payload) {
+
             let user = getters.user
             firebase.database().ref('/users/' + user.id)
             .child('/members/' + payload)
