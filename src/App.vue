@@ -54,6 +54,7 @@
     methods: {
       onLogOut () {
         this.$store.dispatch('logUserOut')
+        this.$router.push({name: 'SignIn'})
       }
     }
   }
