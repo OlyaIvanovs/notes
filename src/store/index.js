@@ -188,8 +188,10 @@ export const store = new Vuex.Store({
                 const user = {
                     id: userData.uid
                 }
-                firebase.database().ref('/users/' + userData.uid).update({
-                    email: userData.email
+                userData.sendEmailVerification().then(() => {
+                    firebase.database().ref('/users/' + userData.uid).update({
+                        email: userData.email
+                    })
                 })
                 commit('setUser', user)
             })

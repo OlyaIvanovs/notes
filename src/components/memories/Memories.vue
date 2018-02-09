@@ -10,6 +10,15 @@
                 </v-progress-circular>
             </v-flex>
         </v-layout>
+        <template v-else>
+        <v-layout row v-if="!loadedMemories[0]">
+            <v-flex xs12 sm6>
+                <h2>No notes yet</h2>
+                <router-link :to="{name: 'CreateMemory'}" style="cursor: pointer;">
+                    Add the first note
+                </router-link>
+            </v-flex>
+        </v-layout>
         <v-layout row justify-space-between v-else>
             <v-flex xs12 sm6>
                 <v-layout row v-if="info">
@@ -34,7 +43,6 @@
                         <router-link style="display: block; text-decoration: none;"  
                         :to="{name: 'Memory', params: {id: item.id}}">
                             <v-card>
-                                <!-- <v-list two-line :class="{red lighten-4: item.shared}"> -->
                                 <v-list two-line :class="[item.shared ? 'red lighten-4': '']">
                                     <v-list-tile :key="item.title">
                                     <v-list-tile-content>
@@ -80,6 +88,8 @@
                         v-model="picker" 
                         landscape>
                     </v-date-picker>
+                </v-layout>
+                <v-layout>
                     <v-btn v-if="picker"
                         flat 
                         class="accent" 
@@ -90,6 +100,7 @@
                 </v-layout>
             </v-flex>
         </v-layout>
+        </template>
     </v-container>
 </template>
 
@@ -102,7 +113,7 @@ export default {
             picker: '',
             search: '',
             filterOptions: ['All', 'Only yours', 'Shared with you'],
-            filterOption: null
+            filterOption: 'All'
         }
     },
     computed: {

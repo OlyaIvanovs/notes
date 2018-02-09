@@ -52,7 +52,7 @@ new Vue({
     })
 
     firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
+      if (user && user.emailVerified) {
         this.$store.dispatch('autoSignIn', user)
       }
     })

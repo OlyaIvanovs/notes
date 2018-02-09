@@ -31,8 +31,7 @@
                                         label="Password"
                                         id="password"
                                         v-model="password"
-                                        type="password"
-                                        :counter="10"
+                                        type="password"     
                                         required
                                         ></v-text-field>
                                     </v-flex>
