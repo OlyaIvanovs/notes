@@ -5,10 +5,18 @@
         class="hidden-sm-and-up">
       </v-toolbar-side-icon>
       <v-toolbar-title>
-        <router-link to="/" tag='span' style="cursor: pointer;" class="display-1 pt-3">DailyNotes</router-link>
+        <router-link to="/" tag='span' style="cursor: pointer;" class="display-2">
+          DailyNotes
+        </router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-xs-only">
+      <div>
+        <div 
+        v-if="user" 
+        style="text-align: right; padding: 0 0 10px 0;">
+          You logged in as {{user.email}}
+        </div>
+        <v-toolbar-items class="hidden-xs-only">
         <v-btn flat dark v-for="item in menuItems" :key="item.id" :to='item.link'>
           <v-icon left>{{ item.icon }}</v-icon> 
           {{ item.title }}
@@ -18,6 +26,8 @@
           Log out
         </v-btn>
       </v-toolbar-items>
+      </div>
+      
     </v-toolbar>
     <main>
       <router-view></router-view>
@@ -39,7 +49,7 @@
         let menuItems
         if (this.user) {
           menuItems = [
-            {icon: 'note', title: 'Write memory', link: '/memories/new'},
+            {icon: 'note', title: 'Take a note', link: '/memories/new'},
             {icon: 'person', title: 'Profile', link: '/profile'}
           ]
         } else {

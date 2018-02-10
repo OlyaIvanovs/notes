@@ -40,8 +40,11 @@ export const store = new Vuex.Store({
         setLoadedMemories (state, payload) {
             state.loadedMemories = payload
         },
-        setInfo (state, payload) {
+        setInfo (state, payload, commit) {
             state.info = payload
+            setTimeout(() => {
+                state.info = null
+            }, 2000)
         },
         setMembers (state, payload) {
             state.members = payload
@@ -176,7 +179,8 @@ export const store = new Vuex.Store({
         },
         autoSignIn ({commit, dispatch}, payload) {
             commit('setUser', {
-                id: payload.uid
+                id: payload.uid,
+                email: payload.email
             })
             dispatch('loadMemories')
             dispatch('members')
@@ -186,13 +190,13 @@ export const store = new Vuex.Store({
             .createUserWithEmailAndPassword(payload.email, payload.password)
             .then(userData => {
                 const user = {
-                    id: userData.uid
+                    id: userData.uid,
+                    email: userData.email
                 }
-                userData.sendEmailVerification().then(() => {
-                    firebase.database().ref('/users/' + userData.uid).update({
-                        email: userData.email
-                    })
+                firebase.database().ref('/users/' + userData.uid).update({
+                    email: userData.email
                 })
+                userData.sendEmailVerification()
                 commit('setUser', user)
             })
             .catch(error => {
