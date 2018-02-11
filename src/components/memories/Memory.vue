@@ -47,18 +47,16 @@
                     </v-card>
                 </v-flex>
                 <v-flex xs6>
-                    <template v-if="memory.images">
-                        <v-carousel :cycle="false">
-                            <v-carousel-item
-                            v-for="(item,i) in memory.images"
-                            :key="i"
-                            :src="item.url"
-                            transition="fade"
-                            reverseTransition="fade"
-                            ></v-carousel-item>
-                        </v-carousel>
-                        <app-edit-photo-dialog v-if="!memory.shared" :memoryId="memory.id"></app-edit-photo-dialog>
-                    </template>
+                    <v-carousel :cycle="false" v-if="memory.images[0]">
+                        <v-carousel-item
+                        v-for="(item,i) in memory.images"
+                        :key="i"
+                        :src="item.url"
+                        transition="fade"
+                        reverseTransition="fade"
+                        ></v-carousel-item>
+                    </v-carousel>
+                    <app-edit-photo-dialog v-if="!memory.shared" :memoryId="memory.id"></app-edit-photo-dialog>
                 </v-flex>
             </template>     
         </v-layout>

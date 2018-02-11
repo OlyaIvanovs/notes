@@ -35,6 +35,7 @@ export const store = new Vuex.Store({
             state.loading = payload
         },
         setUser (state, payload) {
+            console.log(payload)
             state.user = payload
         },
         setLoadedMemories (state, payload) {
@@ -132,9 +133,15 @@ export const store = new Vuex.Store({
         }
     },
     actions: {
-        shareMemory ({commit}, payload) {
+        removeNotification ({commit}, payload) {
+            firebase.database().ref('/users/' + payload.userId)
+            .child('/notifications/' + payload.notificationId)
+            .remove()
+        },
+        shareMemory ({commit, getters}, payload) {
             let promises = []
             let memoryId = payload.memoryId
+            let user = getters.user.email
 
             function getSelectedMemberPromise(member){
                 return firebase.database()
@@ -143,6 +150,11 @@ export const store = new Vuex.Store({
                 .then(() => {
                     firebase.database().ref('/users/' + member.uid).child('/notes/')
                     .push({id: memoryId})
+                    .then(() => {
+                        let msg = "Your friend" + user + "share a note with you" + memoryId
+                        firebase.database().ref('/users/' + member.uid).child('/notifications/')
+                        .push(msg)
+                    })
                 })
             } 
             
@@ -178,9 +190,18 @@ export const store = new Vuex.Store({
             commit('clearError')
         },
         autoSignIn ({commit, dispatch}, payload) {
+            let notifications = []
+            firebase.database().ref('/users/' + payload.uid).child('notifications')
+            .once('value').then(data => {
+                const obj = data.val()
+                for (let key in obj) {
+                    notifications.push({key: key, msg: obj[key]})
+                }
+            })
             commit('setUser', {
                 id: payload.uid,
-                email: payload.email
+                email: payload.email,
+                notifications: notifications
             })
             dispatch('loadMemories')
             dispatch('members')
@@ -191,10 +212,12 @@ export const store = new Vuex.Store({
             .then(userData => {
                 const user = {
                     id: userData.uid,
-                    email: userData.email
+                    email: userData.email,
+                    notifications: []
                 }
                 firebase.database().ref('/users/' + userData.uid).update({
-                    email: userData.email
+                    email: userData.email,
+                    notifications: []
                 })
                 userData.sendEmailVerification()
                 commit('setUser', user)
@@ -245,7 +268,7 @@ export const store = new Vuex.Store({
                         title: info.title,
                         note: info.note,
                         date: info.date,
-                        images: info.images,
+                        images: info.images || [],
                         numPhotoUpdate: info.numPhotoUpdate,
                         owner: info.owner,
                         shared: shared,
@@ -544,7 +567,7 @@ export const store = new Vuex.Store({
                             title: payload.title, 
                             note: payload.note,
                             date: payload.date.toString(),
-                            images: images,
+                            images: images || [],
                             id: key,
                             numPhotoUpdate: 0,
                             shared: false

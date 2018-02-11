@@ -18,11 +18,20 @@
         </div>
         <v-toolbar-items class="hidden-xs-only">
         <v-btn flat dark v-for="item in menuItems" :key="item.id" :to='item.link'>
-          <v-icon left>{{ item.icon }}</v-icon> 
-          {{ item.title }}
+          <v-icon>{{ item.icon }}</v-icon> 
+          &nbsp;
+          <template v-if="item.title == 'Profile' && user.notifications[0]">
+            <v-badge overlapleft color="orange">
+              <v-icon slot="badge" dark>notifications</v-icon>
+              {{ item.title }}
+            </v-badge>
+          </template>
+          <template v-else>
+            {{ item.title }}
+          </template>
         </v-btn>
         <v-btn flat dark @click="onLogOut" v-if="user">
-          <v-icon left>exit_to_app</v-icon>
+          <v-icon>exit_to_app</v-icon>
           Log out
         </v-btn>
       </v-toolbar-items>

@@ -51,7 +51,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" flat="flat" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="green text--darken-2" flat="flat" @click="editPhotosMemory">Edit</v-btn>
+          <v-btn color="green text--darken-2" flat="flat" @click="editPhotosMemory">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
