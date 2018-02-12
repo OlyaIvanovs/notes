@@ -2,13 +2,13 @@
 <div style="margin: 0;">
     <v-btn icon @click="dialog = true"><v-icon>share</v-icon></v-btn>
     <v-dialog v-model="dialog" max-width="290"> 
-      <v-card v-if="members[0]">
+      <v-card v-if="notSharedMembers[0]">
         <v-card-title class="headline">Share with friends</v-card-title>
         <v-card-text>
           <form>
           <v-layout row>
               <v-flex xs12>
-                <template v-for="member in members">
+                <template v-for="member in notSharedMembers">
                     <v-switch 
                     :label="member.email" 
                     v-model="selectedMembers" 
@@ -24,16 +24,21 @@
           <v-btn color="green text--darken-2" flat="flat" @click="shareMemory">Share</v-btn>
         </v-card-actions>
       </v-card>
-      <v-card v-else>
-        <v-card-title class="headline">
-            No friends to share :(
-        </v-card-title>
-        <v-card-text>
-            <router-link :to="{name: 'Profile'}" style="cursor: pointer;" class="subheading">
-                Invite friends to join your family 
-            </router-link>
-        </v-card-text>
-      </v-card>
+      <template v-else>
+            <v-card>
+                <v-card-title class="headline" v-if="!members[0]">
+                    No friends to share :(
+                </v-card-title>
+                <v-card-title class="headline" v-else>
+                    You shared this note with all friends
+                </v-card-title>
+                <v-card-text>
+                    <router-link :to="{name: 'Profile'}" style="cursor: pointer;" class="subheading">
+                        Invite friends to join your family 
+                    </router-link>
+                </v-card-text>
+            </v-card>
+      </template>
     </v-dialog>
 </div>
 </template>
@@ -46,8 +51,7 @@
         data () {
             return {
                 dialog: false,
-                selectedMembers: [],
-                smembers: []
+                selectedMembers: []
             }
         },
         watch: {
@@ -56,7 +60,19 @@
             }
         },
         computed: {
-            ...mapGetters(['members'])
+            ...mapGetters(['members']),
+            memory () {
+                return this.$store.getters.loadedMemory(this.memoryId)
+            },
+            notSharedMembers () {
+                let sharedMembers = []
+                for (let key in this.memory.sharedList) {
+                    sharedMembers.push(this.memory.sharedList[key])
+                }
+                return this.members.filter(member => {
+                    return sharedMembers.indexOf(member.email) === -1
+                })
+            }
         },
         watch: {
             members (newVal, oldVal) {

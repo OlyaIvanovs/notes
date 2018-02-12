@@ -35,7 +35,6 @@ export const store = new Vuex.Store({
             state.loading = payload
         },
         setUser (state, payload) {
-            console.log(payload)
             state.user = payload
         },
         setLoadedMemories (state, payload) {
