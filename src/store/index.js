@@ -19,6 +19,9 @@ export const store = new Vuex.Store({
             let memory = state.loadedMemories.find((memory) => {
                 return memory.id == payload.memoryId
             })
+            if (memory.sharedList == undefined) {
+                memory.sharedList = []
+            }
             payload.selectedMembers.forEach(member => {
                 if (memory.sharedList.indexOf(member.email) == -1) {
                     memory.sharedList.push(member.email)
@@ -150,9 +153,12 @@ export const store = new Vuex.Store({
                     firebase.database().ref('/users/' + member.uid).child('/notes/')
                     .push({id: memoryId})
                     .then(() => {
-                        let msg = "Your friend" + user + "share a note with you" + memoryId
+                        let msg = "Your friend " + user + " shared a note with you"
                         firebase.database().ref('/users/' + member.uid).child('/notifications/')
-                        .push(msg)
+                        .push({
+                            msg: msg,
+                            memoryId: memoryId
+                        })
                     })
                 })
             } 

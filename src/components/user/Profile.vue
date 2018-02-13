@@ -26,7 +26,12 @@
                             dismissible
                             @input="onClose(i)"
                             :value="true">
-                            {{ notification.msg }}
+                            {{ notification.msg.msg }}
+                            &nbsp;
+                            <router-link 
+                            :to="{name: 'Memory', params: {id: notification.msg.memoryId}}">
+                                See
+                            </router-link>
                         </v-alert>
                     </li>
                 </ul>
