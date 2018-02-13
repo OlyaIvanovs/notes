@@ -16,7 +16,7 @@
 
 <script>
     export default {
-        props: ['memoryId'], 
+        props: ['memoryId', 'shared'], 
         data () {
             return {
                 dialog: false
@@ -25,7 +25,12 @@
         methods: {
           deleteMemory () {
             this.dialog = false
-            this.$store.dispatch('deleteMemory', this.memoryId)
+            if (!this.shared) {
+              this.$store.dispatch('deleteMemory', this.memoryId)
+            } else {
+              this.$store.dispatch('deleteSharedMemory', this.memoryId)
+            }
+            
             this.$router.push({'name': 'Memories'})
           }
         }

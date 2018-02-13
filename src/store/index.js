@@ -353,6 +353,28 @@ export const store = new Vuex.Store({
                 commit('setLoading', false)
             })
         },
+        deleteSharedMemory({commit, getters}, payload) {
+            let user = getters.user
+            firebase.database().ref('/notes/' + payload + '/owner/')
+            .once('value')
+            .then(() => {
+                firebase.database().ref('/users/' + user.id).child('/notes/')
+                .orderByChild('id').equalTo(payload).on('child_added', (snapshot) => {
+                    snapshot.ref.remove()
+                })
+            }) 
+            .then(() => {
+                commit('deleteMemory', payload)
+                commit('setInfo', {
+                    msg: "Shared note was deleted",
+                    clr: 'warning',
+                    icon: 'priority_high'
+                })
+            })
+            .catch(error => {
+                console.log(error)
+            })  
+        },
         deleteMemory ({commit, getters}, payload) {
             let user = getters.user
             firebase.database().ref('/notes/' + payload + '/owner/')
@@ -386,7 +408,7 @@ export const store = new Vuex.Store({
             .then(() => {
                 commit('deleteMemory', payload)
                 commit('setInfo', {
-                    msg: "Your memory was deleted",
+                    msg: "Your note was deleted",
                     clr: 'warning',
                     icon: 'priority_high'
                 })
