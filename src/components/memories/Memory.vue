@@ -19,7 +19,9 @@
                         <v-card-title>
                             <div>
                                 <h2 class="primary--text">{{ memory.title }}</h2>
-                                <span class="grey--text">{{ memory.date | date }}</span><br>
+                                <span class="grey--text" v-if="memory.date">
+                                    {{ memory.date | date }}
+                                </span><br>
                             </div>
                         </v-card-title>
                         <v-card-text>
@@ -34,17 +36,23 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <app-share-memory-dialog v-if="!memory.shared" :memoryId="memory.id"></app-share-memory-dialog>
-                            <app-edit-dialog v-if="!memory.shared" :memoryId="memory.id"></app-edit-dialog>
+                            <app-share-memory-dialog 
+                            v-if="!memory.shared" 
+                            :memoryId="memory.id">
+                            </app-share-memory-dialog>
+                            <app-edit-dialog 
+                            v-if="!memory.shared" 
+                            :memoryId="memory.id">
+                            </app-edit-dialog>
                             <app-delete-dialog 
                             :shared="memory.shared" 
                             :memoryId="memory.id">
                             </app-delete-dialog>
                         </v-card-actions>
                         <v-card-text v-if="memory.shared">
-                            <span class="grey--text">
+                            <span class="grey--text" v-if="memory.owner">
                                 <v-icon color="primary">sync</v-icon>
-                                {{ memory.owner }} shared this memory with you
+                                {{ memory.owner }} shared this note with you
                             </span>
                         </v-card-text>
                     </v-card>

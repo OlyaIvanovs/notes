@@ -177,7 +177,7 @@ export const store = new Vuex.Store({
                 Promise.all(promises).then(() => {
                     commit('shareMemory', payload)
                     commit('setInfo', {
-                        msg: "Hooray! You've shared your memory",
+                        msg: "Hooray! You've shared your note",
                         clr: 'warning',
                         icon: 'priority_high'
                     })
@@ -261,11 +261,25 @@ export const store = new Vuex.Store({
                 return firebase.database().ref('/notes/' + id)
                 .once('value').then(data => {
                     let info = data.val()
-                    let shared = (user != data.val().owner)
+                    let shared
+                    let id
+                    if (info) { 
+                        shared = (user != info.owner)
+                    } else {
+                        info = {
+                            title: "The note was deleted by owner",
+                            note: "",
+                            date: null,
+                            images: [],
+                            numPhotoUpdate: 0,
+                            owner: ""
+                        }
+                        shared = true
+                    }
                     let sharedList = []
-                    if (data.val().shared) {
-                        for (let key in data.val().shared) {
-                            sharedList.push(data.val().shared[key].email)
+                    if (info.shared) {
+                        for (let key in info.shared) {
+                            sharedList.push(info.shared[key].email)
                         }
                     } 
                     return {
@@ -597,7 +611,8 @@ export const store = new Vuex.Store({
                             images: images || [],
                             id: key,
                             numPhotoUpdate: 0,
-                            shared: false
+                            shared: false,
+                            owner: user.id
                         })
                     })
                 });

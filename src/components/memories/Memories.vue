@@ -30,7 +30,7 @@
                     <v-flex xs12>
                         <v-text-field
                             name="input-1-3"
-                            label="Find in memories..."
+                            label="Find in notes..."
                             single-line
                             prepend-icon="search"
                             v-model="search"
@@ -40,8 +40,26 @@
                 <v-layout row>
                     <v-flex xs12>
                         <template v-for="(item, index) in filteredMemories">
+                        <v-card v-if="!item.owner">
+                            <v-list two-line class="grey lighten-2">
+                                <v-list-tile :key="item.title">
+                                    <v-list-tile-content>
+                                        <v-list-tile-title class="primary--text">
+                                            {{ item.title }}
+                                        </v-list-tile-title>
+                                         <v-list-tile-sub-title>
+                                            <app-delete-dialog 
+                                            :shared="item.shared" 
+                                            :memoryId="item.id">
+                                            </app-delete-dialog>
+                                        </v-list-tile-sub-title>
+                                    </v-list-tile-content>
+                                </v-list-tile>
+                            </v-list>
+                            <v-divider v-if="index + 1 < loadedMemories.length"></v-divider>
+                        </v-card>
                         <router-link style="display: block; text-decoration: none;"  
-                        :to="{name: 'Memory', params: {id: item.id}}">
+                        :to="{name: 'Memory', params: {id: item.id}}" v-else>
                             <v-card>
                                 <v-list two-line :class="[item.shared ? 'red lighten-4': '']">
                                     <v-list-tile :key="item.title">
@@ -53,8 +71,13 @@
                                                 <span>Shared with you</span>
                                             </v-tooltip>
                                         </v-list-tile-title>
-                                        <v-list-tile-sub-title class="grey--text text--darken-4">{{ item.note }}</v-list-tile-sub-title>
-                                        <v-list-tile-sub-title>{{ item.date | date}}</v-list-tile-sub-title>
+                                        <v-list-tile-sub-title 
+                                            class="grey--text text--darken-4">
+                                            {{ item.note }}
+                                        </v-list-tile-sub-title>
+                                        <v-list-tile-sub-title>
+                                            {{ item.date | date}}
+                                        </v-list-tile-sub-title>
                                     </v-list-tile-content>
                                     </v-list-tile>
                                 </v-list>
@@ -71,14 +94,14 @@
                         <v-select
                         :items="filterOptions"
                         v-model="filterOption"
-                        label="Filter memories"
+                        label="Filter notes"
                         autocomplete
                         ></v-select>
                     </v-flex>
                 </v-layout>
                 <v-layout row>
                     <v-flex xs12>
-                        <h3 class="primary--text">Filter memories by date</h3>
+                        <h3 class="primary--text">Filter notes by date</h3>
                     </v-flex>
                 </v-layout>
                 <v-layout row>

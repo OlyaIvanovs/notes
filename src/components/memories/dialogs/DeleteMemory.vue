@@ -3,7 +3,7 @@
     <v-btn icon @click="dialog = true"><v-icon>delete</v-icon></v-btn>
     <v-dialog v-model="dialog" max-width="290">
       <v-card>
-        <v-card-title class="headline">Delete memory?</v-card-title>
+        <v-card-title class="headline">Delete this note?</v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="accent" flat="flat" @click="deleteMemory">Yes</v-btn>
